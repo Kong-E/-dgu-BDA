@@ -1,0 +1,51 @@
+---
+title: "HW_PCA"
+author: "공소연"
+date: "2022-09-24"
+output:
+  word_document: default
+  html_document:
+    df_print: paged
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Q1: Load “decathlon2” dataset and create a new dataset excluding the “Rank” and “Competition” variables.
+
+
+```{r q1}
+library(factoextra)
+data("decathlon2")
+View(decathlon2)
+
+data <- decathlon2[,-c(11, 13)]
+```
+
+
+## Q2: Use the “Points” variable as the dependent variable and create the independent variable(x) and dependent 
+
+```{r q2}
+y <- data[,c(11)]
+x <- data[,c(1:10)]
+```
+
+
+## Q3: Conduct a principal component analysis using independent variable set and check the importance of components.
+
+```{r q3}
+pcs <- prcomp(na.omit(x), scale. = T, center=T)
+summary(pcs)
+pcs$rotation
+```
+
+
+## Q4: Choose some components to conduct a regression analysis to predict the dependent variable. How many components did you choose? Explain.
+
+```{r p4}
+pcs$x
+pcs_scores <- pcs$x[,1:5]
+model <- lm(y~pcs_scores)
+```

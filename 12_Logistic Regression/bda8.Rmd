@@ -1,0 +1,76 @@
+---
+title: "HW_Logistic Regression"
+author: "경제학과 2020110210 공소연"
+date: "2022-11-25"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## 1
+
+```{r}
+rm(list = ls())
+
+## 1
+library(MASS)
+data <- biopsy
+```
+
+## 2
+
+```{r}
+str(data)
+summary(data)
+?biopsy
+```
+
+## 3
+
+```{r}
+data <- na.omit(data)
+summary(data)
+```
+
+## 4
+
+```{r}
+data <- data[,-1]
+str(data)
+levels(data$class) <- c(0,1)
+str(data)
+summary(data)
+head(data[10], 10)
+```
+
+## 5
+
+```{r}
+set.seed(1)
+library(caret)
+parts <- createDataPartition(data$class, p=0.7, list=F)
+training <- data[parts,]
+testing <- data[-parts,]
+glm <- glm(class ~ .,
+           data = training,
+           family = binomial)
+summary(glm)
+head(fitted(glm),10)
+```
+
+## 6
+
+```{r}
+pred <- predict(glm, newdata = testing, type = "response")
+yi <- as.numeric(testing$class==1)
+data.frame(pred, yi)
+
+sqrt(sum((yi-pred)^2)/204) # RMSE
+library(forecast)
+accuracy(pred, yi)
+
+confusionMatrix(as.factor(ifelse(pred>0.5,'1','0')),
+                testing$class) # cutoff=0.5, accuracy=0.985
+```

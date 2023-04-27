@@ -1,0 +1,74 @@
+---
+title: "HW_MLR"
+author: "경제학과 2020110210 공소연"
+date: "2022-10-11"
+output:
+  word_document: default
+  html_document:
+    df_print: paged
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Q1: Check the first 3 rows of this dataset.
+
+```{r 1}
+state.df <- data.frame(state.x77)
+
+#Q1
+head(state.df, 3)
+```
+
+## Q2: Create a new data frame using variable “Murder”, “Population”, “Illiteracy”, “Income” and “Frost” and check it.
+
+```{r 2}
+selected.var <- c(5,1,3,2,7)
+stat.df <- state.df[selected.var]
+str(stat.df)
+```
+
+## Q3: Conduct a multiple regression to predict the dependent variable “Murder” using all other variables as the independent variables and show the results.
+
+```{r 3}
+# partition data
+set.seed(1)
+train.index <- sample(c(1:50), 30)
+train.df <- stat.df[train.index,]
+valid.df <- stat.df[-train.index,]
+
+stat.lm <- lm(Murder~., data = train.df)
+options(scipen =999)
+summary(stat.lm)
+```
+
+## Q4: Use stepwise method to select independent variables and conduct multiple regression with the selected independent variables.
+
+```{r 4}
+stat.lm.step <- step(stat.lm, direction = "both")
+summary(stat.lm.step)
+```
+
+## Q5: Compare the results in Q3 and Q4.
+
+```{r 5}
+coef(stat.lm)
+coef(stat.lm.step)
+
+stat.lm.pred <- predict(stat.lm, valid.df)
+stat.lm.step.pred <- predict(stat.lm.step, valid.df)
+
+# 모델의 평가측도 계산
+library(forecast)
+accuracy(stat.lm.pred, valid.df$Murder)
+accuracy(stat.lm.step.pred, valid.df$Murder) 
+
+data.frame("Predicted" = stat.lm.pred,
+           "Actual" = valid.df$Murder,
+           "Residual" = valid.df$Murder - stat.lm.pred)
+
+data.frame("Predicted" = stat.lm.step.pred,
+           "Actual" = valid.df$Murder,
+           "Residual" = valid.df$Murder - stat.lm.step.pred)
+```
